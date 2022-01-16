@@ -10,9 +10,7 @@ import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.LocalOverScrollConfiguration
-import androidx.compose.foundation.gestures.ScrollableDefaults.flingBehavior
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -22,10 +20,10 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.DefaultFillType
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -93,11 +91,17 @@ fun HomeScreen() {
         ) { state ->
             when (state) {
                 HeaderState.Expanded -> 350.dp
-                HeaderState.Collapsed -> 120.dp
+                HeaderState.Collapsed -> 200.dp
             }
         }
 
         val imageHeight = 170.dp
+        val cardHeight  by transition.animateDp(label = "cardHeight") { state->
+            when (state) {
+                HeaderState.Expanded -> 200.dp
+                HeaderState.Collapsed -> 80.dp
+            }
+        }
 
         val imageMaskHeight by transition.animateDp(label = "imageMask") { state ->
             when (state) {
@@ -163,7 +167,7 @@ fun HomeScreen() {
                 modifier = Modifier
                     .padding(start = 20.dp, end = 20.dp, bottom = 16.dp)
                     .fillMaxWidth()
-                    .height(200.dp)
+                    .height(cardHeight)
                     .align(alignment = Alignment.BottomCenter),
                 backgroundColor = Color.White,
                 shape = RoundedCornerShape(6.dp),
