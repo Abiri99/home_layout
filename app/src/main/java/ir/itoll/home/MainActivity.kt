@@ -4,10 +4,15 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.updateTransition
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.FlingBehavior
+import androidx.compose.foundation.gestures.LocalOverScrollConfiguration
+import androidx.compose.foundation.gestures.ScrollableDefaults.flingBehavior
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -20,6 +25,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.DefaultFillType
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -32,6 +38,7 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import ir.itoll.home.ui.theme.HomeTheme
 
 class MainActivity : ComponentActivity() {
+    @ExperimentalFoundationApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -45,6 +52,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@ExperimentalFoundationApi
 @Composable
 fun HomeScreen() {
     // Remember a SystemUiController
@@ -70,6 +78,35 @@ fun HomeScreen() {
         val (header, list) = createRefs()
         val scrollState = rememberLazyListState()
 
+        var currentState by remember {
+            mutableStateOf(HeaderState.Expanded)
+        }
+
+        val transition = updateTransition(currentState, label = "transition")
+
+        val headerHeight by transition.animateDp(
+            label = "headerHeight",
+            transitionSpec =
+            {
+                spring(stiffness = Spring.StiffnessLow, dampingRatio = Spring.DampingRatioLowBouncy)
+            }
+        ) { state ->
+            when (state) {
+                HeaderState.Expanded -> 350.dp
+                HeaderState.Collapsed -> 120.dp
+            }
+        }
+
+        val imageHeight = 170.dp
+
+        val imageMaskHeight by transition.animateDp(label = "imageMask") { state ->
+            when (state) {
+                HeaderState.Expanded -> 180.dp
+                HeaderState.Collapsed -> 50.dp
+            }
+        }
+
+
         var lastVisibleIndex by remember {
             mutableStateOf(0)
         }
@@ -81,12 +118,15 @@ fun HomeScreen() {
         LaunchedEffect(key1 = scrollState.firstVisibleItemIndex) {
             isScrollingDown = lastVisibleIndex < scrollState.firstVisibleItemIndex
             lastVisibleIndex = scrollState.firstVisibleItemIndex
+            currentState = if (isScrollingDown) HeaderState.Collapsed else HeaderState.Expanded
         }
 
-        val headerHeight by animateDpAsState(
+        /*val headerHeight by animateDpAsState(
             targetValue = if (isScrollingDown) 100.dp else 340.dp,
-            animationSpec = spring(dampingRatio = Spring.DampingRatioLowBouncy, stiffness = Spring.StiffnessLow)
-        )
+            animationSpec = spring(dampingRatio = Spring.DampingRatioLowBouncy,
+                stiffness = Spring.StiffnessLow)
+        )*/
+
 
         // header
         Box(
@@ -106,14 +146,14 @@ fun HomeScreen() {
                 contentDescription = "header",
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(150.dp),
+                    .height(imageHeight),
                 contentScale = ContentScale.Crop
             )
             // banner
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(150.dp)
+                    .height(imageMaskHeight)
                     .align(alignment = Alignment.BottomCenter),
                 color = Color.Blue
             ) {}
@@ -135,38 +175,48 @@ fun HomeScreen() {
         }
 
         // rest of contents
-        LazyColumn(
-            modifier = Modifier.constrainAs(list) {
-                top.linkTo(header.bottom, (-16).dp)
-                start.linkTo(parent.start, 0.dp)
-                end.linkTo(parent.end, 0.dp)
-            },
-            state = scrollState,
-        ) {
-            items(100) {
-                Surface(
-                    modifier = Modifier
-                        .padding(vertical = 2.dp)
-                        .fillMaxWidth()
-                        .height(50.dp),
-                    color = Color.Red,
-                ) {
-                    Text(
-                        text = it.toString(),
-                        textAlign = TextAlign.Center,
-                    )
-                }
 
+        CompositionLocalProvider(LocalOverScrollConfiguration provides null) {
+            LazyColumn(
+                modifier = Modifier.constrainAs(list) {
+                    top.linkTo(header.bottom, (-16).dp)
+                    start.linkTo(parent.start, 0.dp)
+                    end.linkTo(parent.end, 0.dp)
+                },
+                state = scrollState,
+            ) {
+                items(100) {
+                    Surface(
+                        modifier = Modifier
+                            .padding(vertical = 2.dp)
+                            .fillMaxWidth()
+                            .height(50.dp),
+                        color = Color.Red,
+                    ) {
+                        Text(
+                            text = it.toString(),
+                            textAlign = TextAlign.Center,
+                        )
+                    }
+
+                }
             }
         }
+
     }
 
 }
 
+@ExperimentalFoundationApi
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
     HomeTheme {
         HomeScreen()
     }
+}
+
+enum class HeaderState {
+    Expanded,
+    Collapsed
 }
