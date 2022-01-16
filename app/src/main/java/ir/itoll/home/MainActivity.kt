@@ -110,6 +110,13 @@ fun HomeScreen() {
             }
         }
 
+        val cardSidePadding by transition.animateDp(label = "cardSidePadding") { state ->
+            when (state) {
+                HeaderState.Expanded -> 20.dp
+                HeaderState.Collapsed -> 8.dp
+            }
+        }
+
 
         var lastVisibleIndex by remember {
             mutableStateOf(0)
@@ -165,7 +172,7 @@ fun HomeScreen() {
             //license box
             Card(
                 modifier = Modifier
-                    .padding(start = 20.dp, end = 20.dp, bottom = 16.dp)
+                    .padding(start = cardSidePadding, end = cardSidePadding, bottom = 16.dp)
                     .fillMaxWidth()
                     .height(cardHeight)
                     .align(alignment = Alignment.BottomCenter),
