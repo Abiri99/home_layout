@@ -64,4 +64,11 @@ dependencies {
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
 
     implementation "androidx.constraintlayout:constraintlayout-compose:1.0.0"
+
+    implementation "com.google.accompanist:accompanist-systemuicontroller:0.22.0-rc"
+
+    implementation "com.google.accompanist:accompanist-insets:0.22.0-rc"
+    // If using insets-ui
+    implementation "com.google.accompanist:accompanist-insets-ui:0.22.0-rc"
+
 }
