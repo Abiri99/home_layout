@@ -215,6 +215,12 @@ fun HomeScreen() {
                         bottom.linkTo(parent.bottom, 8.dp)
                     },
                 state = scrollState,
+                contentPadding = PaddingValues(
+                    start = 24.dp,
+                    end = 24.dp,
+                    top = 200.dp,
+                    bottom = 200.dp,
+                )
             ) {
                 items(100) {
                     Surface(
