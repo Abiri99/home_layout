@@ -20,7 +20,6 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
-import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -65,7 +64,7 @@ fun HomeScreen() {
             darkIcons = useDarkIcons
         )
 
-        // setStatusBarsColor() and setNavigationBarsColor() also exist
+//         setStatusBarsColor() and setNavigationBarsColor() also exist
     }
 
     ConstraintLayout(
@@ -76,11 +75,11 @@ fun HomeScreen() {
         val (header, list) = createRefs()
         val scrollState = rememberLazyListState()
 
-        var currentState by remember {
+        var currentHeaderState by remember {
             mutableStateOf(HeaderState.Expanded)
         }
 
-        val transition = updateTransition(currentState, label = "transition")
+        val transition = updateTransition(currentHeaderState, label = "transition")
 
         val headerHeight by transition.animateDp(
             label = "headerHeight",
@@ -112,7 +111,7 @@ fun HomeScreen() {
 
         val cardSidePadding by transition.animateDp(label = "cardSidePadding") { state ->
             when (state) {
-                HeaderState.Expanded -> 20.dp
+                HeaderState.Expanded -> 24.dp
                 HeaderState.Collapsed -> 8.dp
             }
         }
@@ -129,14 +128,8 @@ fun HomeScreen() {
         LaunchedEffect(key1 = scrollState.firstVisibleItemIndex) {
             isScrollingDown = lastVisibleIndex < scrollState.firstVisibleItemIndex
             lastVisibleIndex = scrollState.firstVisibleItemIndex
-            currentState = if (isScrollingDown) HeaderState.Collapsed else HeaderState.Expanded
+            currentHeaderState = if (isScrollingDown) HeaderState.Collapsed else HeaderState.Expanded
         }
-
-        /*val headerHeight by animateDpAsState(
-            targetValue = if (isScrollingDown) 100.dp else 340.dp,
-            animationSpec = spring(dampingRatio = Spring.DampingRatioLowBouncy,
-                stiffness = Spring.StiffnessLow)
-        )*/
 
 
         // header
@@ -190,7 +183,7 @@ fun HomeScreen() {
         CompositionLocalProvider(LocalOverScrollConfiguration provides null) {
             LazyColumn(
                 modifier = Modifier.constrainAs(list) {
-                    top.linkTo(header.bottom, (-16).dp)
+                    top.linkTo(header.bottom, 0.dp)
                     start.linkTo(parent.start, 0.dp)
                     end.linkTo(parent.end, 0.dp)
                 },
