@@ -122,7 +122,7 @@ fun HomeScreen() {
         ) { state ->
             when (state) {
                 HeaderState.Expanded -> with(LocalDensity.current) { 280.dp.toPx() }
-                HeaderState.Collapsed -> with(LocalDensity.current) { 150.dp.toPx() }
+                HeaderState.Collapsed -> with(LocalDensity.current) { 120.dp.toPx() }
             }
         }
 
